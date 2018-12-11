@@ -59,3 +59,25 @@ func NewBlockList(IDs ...string) []storage.Block {
 func PutBlockList(blob *storage.Blob, IDs ...string) error {
 	return blob.PutBlockList(NewBlockList(IDs...), nil)
 }
+
+// PutAndPrintBlockList put and then download to print the blob
+func PutAndPrintBlockList(blob *storage.Blob, IDs ...string) error {
+	if err := PutBlockList(blob, IDs...); err != nil {
+		return err
+	}
+	return PrintBlob(blob)
+}
+
+// GetBlockList return the IDs of the block list
+func GetBlockList(blob *storage.Blob) ([]string, error) {
+	blocks, err := blob.GetBlockList(storage.BlockListTypeCommitted, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var IDs []string
+	for _, block := range blocks.CommittedBlocks {
+		IDs = append(IDs, block.Name)
+	}
+	return IDs, nil
+}
